@@ -1,0 +1,43 @@
+name: Build and deploy Sharp Lambda Layer
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Build
+        run: npm run build
+      - name: Variables
+        id: vars
+        run: |
+          sharp_version=$(node -p "require('sharp/package.json').version")
+          echo "sharp_version=$sharp_version" >> $GITHUB_OUTPUT
+
+          release_exists="true"
+          git show-ref --tags --quiet --verify -- "refs/tags/$sharp_version" || release_exists="false"
+          echo "release_exists=$release_exists" >> $GITHUB_OUTPUT
+      - name: Create release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.vars.outputs.sharp_version }}
+          file: dist/sharp-layer.zip
+          overwrite: true
+      - name: Create release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.vars.outputs.sharp_version }}-fs
+          file: dist/sharp-layer-fs.zip
+          overwrite: true

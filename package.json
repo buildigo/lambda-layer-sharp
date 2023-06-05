@@ -4,11 +4,16 @@
   "repository": "git@github.com:Umkus/lambda-layer-sharp.git",
   "license": "Apache License 2.0",
   "module": "lambda-layer-sharp",
-  "dependencies": {
-    "sharp": "^0.31.0"
+  "scripts": {
+    "postinstall": "npm run package",
+    "build": "SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm ci --arch=x64 --platform=linux --libc=glibc --ignore-scripts=false --foreground-scripts --verbose",
+    "package": "bash package.sh"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
+  },
+  "dependencies": {
+    "sharp": "^0.31.3"
   },
   "author": "Mykhailo Gorianskyi <goreanski@gmail.com>"
 }
